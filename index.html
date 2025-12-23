@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1000 Mile Sprint 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Work+Sans:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --racing-red: #FF1744;
+            --racing-yellow: #FFD600;
+            --racing-blue: #00B0FF;
+            --racing-green: #00E676;
+            --track-dark: #1A1A1A;
+            --track-gray: #2D2D2D;
+            --text-white: #FFFFFF;
+            --text-gray: #B0B0B0;
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: var(--track-dark);
+            color: var(--text-white);
+            overflow-x: hidden;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            z-index: 1000;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .demo-ribbon {
+            position: fixed;
+            top: 30px;
+            right: -80px;
+            background: var(--racing-red);
+            color: white;
+            padding: 10px 100px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 0.9em;
+            letter-spacing: 2px;
+            transform: rotate(45deg);
+            box-shadow: 0 4px 20px rgba(255, 23, 68, 0.5);
+            z-index: 999;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            margin-bottom: 60px;
+            padding: 60px 0;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100px;
+            right: -100px;
+            height: 200px;
+            background: linear-gradient(135deg, var(--racing-red) 0%, var(--racing-yellow) 100%);
+            transform: skewY(-3deg);
+            z-index: -1;
+        }
+
+        h1 {
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 900;
+            font-size: 5em;
+            line-height: 0.9;
+            letter-spacing: -0.03em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .year {
+            display: block;
+            font-size: 0.4em;
+            color: var(--track-dark);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+        }
+
+        .tagline {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1em;
+            color: var(--track-dark);
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 60px;
+        }
+
+        .stat-card {
+            background: var(--track-gray);
+            padding: 30px;
+            border: 4px solid transparent;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--racing-red);
+            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .stat-card:hover::before {
+            width: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75em;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-gray);
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-value {
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 900;
+            font-size: 3em;
+            line-height: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Track Section */
+        .track-wrapper {
+            background: var(--track-gray);
+            padding: 50px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .track-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .track-title {
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 900;
+            font-size: 2.5em;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        .podium {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .podium-place {
+            width: 60px;
+            text-align: center;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+        }
+
+        .podium-bar {
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .podium-place:nth-child(1) .podium-bar { height: 60px; background: var(--racing-yellow); }
+        .podium-place:nth-child(2) .podium-bar { height: 45px; background: var(--text-gray); }
+        .podium-place:nth-child(3) .podium-bar { height: 35px; background: #CD7F32; }
+
+        .podium-number {
+            font-size: 1.5em;
+        }
+
+        /* Racing Track */
+        .race-track {
+            position: relative;
+            padding: 40px 0;
+        }
+
+        .track-markers {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 0 20px;
+        }
+
+        .marker {
+            text-align: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85em;
+            color: var(--text-gray);
+        }
+
+        .marker-flag {
+            font-size: 2em;
+            display: block;
+            margin-bottom: 5px;
+            filter: grayscale(1);
+            transition: filter 0.3s;
+        }
+
+        .marker:hover .marker-flag {
+            filter: grayscale(0);
+        }
+
+        .lane {
+            position: relative;
+            height: 90px;
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, 
+                rgba(255,255,255,0.05) 0%, 
+                rgba(255,255,255,0.02) 50%, 
+                rgba(255,255,255,0.05) 100%
+            );
+            border-left: 5px solid var(--track-dark);
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .lane:hover {
+            transform: translateX(10px);
+            border-left-width: 10px;
+        }
+
+        .lane::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent 0px,
+                transparent 20px,
+                rgba(255,255,255,0.1) 20px,
+                rgba(255,255,255,0.1) 40px
+            );
+        }
+
+        .lane-number {
+            position: absolute;
+            left: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            background: var(--track-dark);
+            border: 3px solid currentColor;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 0.9em;
+        }
+
+        .lane:nth-child(1) { border-left-color: var(--racing-red); }
+        .lane:nth-child(1) .lane-number { color: var(--racing-red); }
+        
+        .lane:nth-child(2) { border-left-color: var(--racing-blue); }
+        .lane:nth-child(2) .lane-number { color: var(--racing-blue); }
+        
+        .lane:nth-child(3) { border-left-color: var(--racing-yellow); }
+        .lane:nth-child(3) .lane-number { color: var(--racing-yellow); }
+        
+        .lane:nth-child(4) { border-left-color: var(--racing-green); }
+        .lane:nth-child(4) .lane-number { color: var(--racing-green); }
+
+        .runner-info {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+
+        .runner-name {
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 700;
+            font-size: 1.3em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .runner-miles {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9em;
+            color: var(--text-gray);
+        }
+
+        .progress-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                rgba(255,255,255,0.15) 0%, 
+                rgba(255,255,255,0.05) 100%
+            );
+            transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            border-right: 3px solid currentColor;
+        }
+
+        .lane:nth-child(1) .progress-bar { color: var(--racing-red); }
+        .lane:nth-child(2) .progress-bar { color: var(--racing-blue); }
+        .lane:nth-child(3) .progress-bar { color: var(--racing-yellow); }
+        .lane:nth-child(4) .progress-bar { color: var(--racing-green); }
+
+        .runner-icon {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%) scaleX(-1);
+            font-size: 2.5em;
+            z-index: 5;
+            transition: left 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            filter: drop-shadow(2px 2px 8px rgba(0,0,0,0.5));
+        }
+
+        /* Details Panel */
+        .details-panel {
+            display: none;
+            background: var(--track-dark);
+            border: 4px solid var(--racing-red);
+            padding: 40px;
+            margin-top: 30px;
+            animation: expandDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .details-panel.active {
+            display: block;
+        }
+
+        .details-panel h3 {
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 900;
+            font-size: 2em;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            letter-spacing: -0.02em;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+        }
+
+        .detail-box {
+            background: var(--track-gray);
+            padding: 25px;
+            border-left: 4px solid var(--racing-red);
+        }
+
+        .detail-value {
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 900;
+            font-size: 2em;
+            margin-bottom: 8px;
+        }
+
+        .detail-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7em;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-gray);
+        }
+
+        /* Controls */
+        .controls-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .control-panel {
+            background: var(--track-gray);
+            padding: 40px;
+        }
+
+        .control-panel h2 {
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 900;
+            font-size: 2em;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            letter-spacing: -0.02em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+            color: var(--text-gray);
+        }
+
+        select, input {
+            width: 100%;
+            padding: 15px;
+            background: var(--track-dark);
+            border: 3px solid rgba(255,255,255,0.1);
+            color: var(--text-white);
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--racing-red);
+        }
+
+        .quick-distances {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .quick-btn {
+            padding: 15px 10px;
+            background: var(--track-dark);
+            border: 2px solid rgba(255,255,255,0.1);
+            color: var(--text-white);
+            font-family: 'Space Mono', monospace;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .quick-btn:hover {
+            border-color: var(--racing-red);
+            background: rgba(255, 23, 68, 0.1);
+        }
+
+        .quick-distance {
+            display: block;
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        .quick-label {
+            font-size: 0.7em;
+            color: var(--text-gray);
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            background: var(--racing-red);
+            border: none;
+            color: white;
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 900;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        button:hover {
+            background: var(--racing-yellow);
+            color: var(--track-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 23, 68, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Activity Feed */
+        .activity-feed {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .activity-feed::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .activity-feed::-webkit-scrollbar-track {
+            background: var(--track-dark);
+        }
+
+        .activity-feed::-webkit-scrollbar-thumb {
+            background: var(--racing-red);
+        }
+
+        .activity-item {
+            padding: 20px;
+            background: var(--track-dark);
+            margin-bottom: 10px;
+            border-left: 4px solid var(--racing-red);
+            transition: all 0.2s;
+        }
+
+        .activity-item:hover {
+            transform: translateX(5px);
+            border-left-width: 8px;
+        }
+
+        .activity-runner {
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        .activity-miles {
+            color: var(--racing-red);
+            font-weight: 700;
+        }
+
+        .activity-time {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75em;
+            color: var(--text-gray);
+            margin-top: 5px;
+        }
+
+        /* Animations */
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes expandDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 1000px;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            h1 { font-size: 3.5em; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .controls-section { grid-template-columns: 1fr; }
+            .details-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5em; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .details-grid { grid-template-columns: repeat(2, 1fr); }
+            .lane { height: 70px; }
+            .runner-icon { font-size: 2em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+    <div class="demo-ribbon">INTERACTIVE DEMO</div>
+
+    <div class="container">
+        <header class="header">
+            <h1>
+                1000 Mile Sprint
+                <span class="year">2026</span>
+            </h1>
+            <p class="tagline">// THE ULTIMATE ENDURANCE CHALLENGE</p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Days Left</div>
+                <div class="stat-value">373</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Miles</div>
+                <div class="stat-value">1005</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Pace</div>
+                <div class="stat-value">87.2</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Runs</div>
+                <div class="stat-value">124</div>
+            </div>
+        </div>
+
+        <section class="track-wrapper">
+            <div class="track-header">
+                <div class="track-title">// RACE TRACK</div>
+                <div class="podium">
+                    <div class="podium-place">
+                        <div class="podium-bar"></div>
+                        <div class="podium-number">🥇</div>
+                    </div>
+                    <div class="podium-place">
+                        <div class="podium-bar"></div>
+                        <div class="podium-number">🥈</div>
+                    </div>
+                    <div class="podium-place">
+                        <div class="podium-bar"></div>
+                        <div class="podium-number">🥉</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="track-markers">
+                <div class="marker">
+                    <span class="marker-flag">🚩</span>
+                    <span>START</span>
+                </div>
+                <div class="marker">
+                    <span class="marker-flag">🚩</span>
+                    <span>250</span>
+                </div>
+                <div class="marker">
+                    <span class="marker-flag">🚩</span>
+                    <span>500</span>
+                </div>
+                <div class="marker">
+                    <span class="marker-flag">🚩</span>
+                    <span>750</span>
+                </div>
+                <div class="marker">
+                    <span class="marker-flag">🏁</span>
+                    <span>1000</span>
+                </div>
+            </div>
+
+            <div class="race-track">
+                <div class="lane" onclick="toggleDetails('ryan')">
+                    <div class="lane-number">1</div>
+                    <div class="progress-bar" style="width: 34.25%;"></div>
+                    <div class="runner-icon" style="left: 34.25%;">🏃‍♂️</div>
+                    <div class="runner-info">
+                        <div class="runner-name">Ryan</div>
+                        <div class="runner-miles">342.5 miles / 34.3%</div>
+                    </div>
+                </div>
+
+                <div class="lane" onclick="toggleDetails('sarah')">
+                    <div class="lane-number">2</div>
+                    <div class="progress-bar" style="width: 28.73%;"></div>
+                    <div class="runner-icon" style="left: 28.73%;">🏃‍♀️</div>
+                    <div class="runner-info">
+                        <div class="runner-name">Sarah</div>
+                        <div class="runner-miles">287.3 miles / 28.7%</div>
+                    </div>
+                </div>
+
+                <div class="lane" onclick="toggleDetails('mike')">
+                    <div class="lane-number">3</div>
+                    <div class="progress-bar" style="width: 21.89%;"></div>
+                    <div class="runner-icon" style="left: 21.89%;">🏃‍♂️</div>
+                    <div class="runner-info">
+                        <div class="runner-name">Mike</div>
+                        <div class="runner-miles">218.9 miles / 21.9%</div>
+                    </div>
+                </div>
+
+                <div class="lane" onclick="toggleDetails('alex')">
+                    <div class="lane-number">4</div>
+                    <div class="progress-bar" style="width: 15.62%;"></div>
+                    <div class="runner-icon" style="left: 15.62%;">🏃‍♀️</div>
+                    <div class="runner-info">
+                        <div class="runner-name">Alex</div>
+                        <div class="runner-miles">156.2 miles / 15.6%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="details-container"></div>
+        </section>
+
+        <div class="controls-section">
+            <div class="control-panel">
+                <h2>// Add Miles</h2>
+                <form onsubmit="event.preventDefault(); alert('Demo Mode - Real version saves to GitHub!');">
+                    <div class="form-group">
+                        <label>Runner</label>
+                        <select>
+                            <option>Ryan</option>
+                            <option>Sarah</option>
+                            <option>Mike</option>
+                            <option>Alex</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Distance (Miles)</label>
+                        <input type="number" step="0.1" value="8.1" placeholder="8.1">
+                    </div>
+                    <div class="quick-distances">
+                        <div class="quick-btn">
+                            <span class="quick-distance">3.1</span>
+                            <span class="quick-label">5K</span>
+                        </div>
+                        <div class="quick-btn">
+                            <span class="quick-distance">6.2</span>
+                            <span class="quick-label">10K</span>
+                        </div>
+                        <div class="quick-btn">
+                            <span class="quick-distance">13.1</span>
+                            <span class="quick-label">Half</span>
+                        </div>
+                        <div class="quick-btn">
+                            <span class="quick-distance">26.2</span>
+                            <span class="quick-label">Marathon</span>
+                        </div>
+                        <div class="quick-btn">
+                            <span class="quick-distance">5.0</span>
+                            <span class="quick-label">5 Miles</span>
+                        </div>
+                        <div class="quick-btn">
+                            <span class="quick-distance">10.0</span>
+                            <span class="quick-label">10 Miles</span>
+                        </div>
+                    </div>
+                    <button type="submit">Log Miles →</button>
+                </form>
+            </div>
+
+            <div class="control-panel">
+                <h2>// Activity Feed</h2>
+                <div class="activity-feed">
+                    <div class="activity-item">
+                        <div>
+                            <span class="activity-runner">Ryan</span> ran 
+                            <span class="activity-miles">12.5 miles</span>
+                        </div>
+                        <div class="activity-time">12/23/2025, 7:15 AM</div>
+                    </div>
+                    <div class="activity-item">
+                        <div>
+                            <span class="activity-runner">Sarah</span> ran 
+                            <span class="activity-miles">5.3 miles</span>
+                        </div>
+                        <div class="activity-time">12/22/2025, 6:30 PM</div>
+                    </div>
+                    <div class="activity-item">
+                        <div>
+                            <span class="activity-runner">Mike</span> ran 
+                            <span class="activity-miles">8.1 miles</span>
+                        </div>
+                        <div class="activity-time">12/22/2025, 2:45 PM</div>
+                    </div>
+                    <div class="activity-item">
+                        <div>
+                            <span class="activity-runner">Alex</span> ran 
+                            <span class="activity-miles">3.7 miles</span>
+                        </div>
+                        <div class="activity-time">12/22/2025, 8:00 AM</div>
+                    </div>
+                    <div class="activity-item">
+                        <div>
+                            <span class="activity-runner">Ryan</span> ran 
+                            <span class="activity-miles">6.8 miles</span>
+                        </div>
+                        <div class="activity-time">12/21/2025, 5:45 PM</div>
+                    </div>
+                    <div class="activity-item">
+                        <div>
+                            <span class="activity-runner">Sarah</span> ran 
+                            <span class="activity-miles">10.2 miles</span>
+                        </div>
+                        <div class="activity-time">12/21/2025, 7:30 AM</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let activeRunner = null;
+
+        function toggleDetails(runner) {
+            const container = document.getElementById('details-container');
+            
+            if (activeRunner === runner) {
+                container.innerHTML = '';
+                activeRunner = null;
+                return;
+            }
+
+            activeRunner = runner;
+
+            const details = {
+                ryan: { miles: 342.5, runs: 42, avg: 8.2, remaining: 657.5, needed: 12.3, progress: 34.3 },
+                sarah: { miles: 287.3, runs: 35, avg: 8.2, remaining: 712.7, needed: 13.3, progress: 28.7 },
+                mike: { miles: 218.9, runs: 28, avg: 7.8, remaining: 781.1, needed: 14.6, progress: 21.9 },
+                alex: { miles: 156.2, runs: 19, avg: 8.2, remaining: 843.8, needed: 15.8, progress: 15.6 }
+            };
+
+            const data = details[runner];
+            const name = runner.charAt(0).toUpperCase() + runner.slice(1);
+
+            container.innerHTML = `
+                <div class="details-panel active">
+                    <h3>// ${name.toUpperCase()} STATS</h3>
+                    <div class="details-grid">
+                        <div class="detail-box">
+                            <div class="detail-value">${data.miles}</div>
+                            <div class="detail-label">Total Miles</div>
+                        </div>
+                        <div class="detail-box">
+                            <div class="detail-value">${data.remaining}</div>
+                            <div class="detail-label">Remaining</div>
+                        </div>
+                        <div class="detail-box">
+                            <div class="detail-value">${data.runs}</div>
+                            <div class="detail-label">Total Runs</div>
+                        </div>
+                        <div class="detail-box">
+                            <div class="detail-value">${data.avg}</div>
+                            <div class="detail-label">Avg/Run</div>
+                        </div>
+                        <div class="detail-box">
+                            <div class="detail-value">${data.needed}</div>
+                            <div class="detail-label">Mi/Week Need</div>
+                        </div>
+                        <div class="detail-box">
+                            <div class="detail-value">${data.progress}%</div>
+                            <div class="detail-label">Progress</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
